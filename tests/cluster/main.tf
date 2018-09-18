@@ -3,8 +3,8 @@ provider "aws" {
   region  = "us-west-2"
 }
 
-module "ecs-cluster" "ecs-cluster" {
+module "ecs" {
   source = "../../module/modules/cluster"
 
-  cluster_name = "test_ecs_cluster"
+  cluster_name = "MyCluster"
 }
