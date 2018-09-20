@@ -1,12 +1,7 @@
-## Inputs
+# aws-terraform-ecr
 
-| Name | Description | Type | Default | Required |
-|------|-------------|:----:|:-----:|:-----:|
-| cluster_name | A name for the cluster | string | `` | no |
+This repository contains terraform modules that can be used to Elastic Container Service cluster or Elastic Container Registry repo. 
 
-## Outputs
-
-| Name | Description |
-|------|-------------|
-| cluster_arn | The ARN of the cluster |
-| cluster_id | The ID of the cluster |
+## Module listing
+- [cluster](./modules/cluster) - A terraform module that can be used to create an IAM role and when appropriate, and IAM instance profile.  This module can create both cross account roles, and service roles.
+- [ssm_service_roles](./modules/ecr) - A terraform module to provision Elastic Container Registry repo with a repo policy that controls access and lifecycle policy for images.
