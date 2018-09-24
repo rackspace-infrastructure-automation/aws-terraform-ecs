@@ -1,0 +1,52 @@
+[
+  {
+    "dnsSearchDomains": null,
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${LOGS_GROUP}",
+        "awslogs-region": "${AWS_REGION}",
+        "awslogs-stream-prefix": "ecstest",
+        "awslogs-create-group": "true"
+      }
+    },
+    "entryPoint": [
+      "sh",
+      "-c"
+    ],
+    "portMappings": [
+      {
+        "hostPort": 80,
+        "protocol": "tcp",
+        "containerPort": 80
+      }
+    ],
+    "command": [
+      "/bin/sh -c \"echo '<html> <head> <title>Amazon ECS EC2 Sample App</title> <style>body {margin-top: 40px; background-color: #333;} </style> </head><body> <div style=color:white;text-align:center> <h1>Amazon ECS Sample App</h1> <h2>Congratulations!</h2> <p>Your application is now running on a container in Amazon ECS on EC2!</p> </div></body></html>' >  /usr/local/apache2/htdocs/index.html && httpd-foreground\""
+    ],
+    "linuxParameters": null,
+    "cpu": 256,
+    "memory": null,
+    "memoryReservation": 256,
+    "environment": [],
+    "ulimits": null,
+    "dnsServers": null,
+    "mountPoints": [],
+    "workingDirectory": null,
+    "dockerSecurityOptions": null,
+    "memory": null,
+    "volumesFrom": [],
+    "image": "httpd:2.4",
+    "disableNetworking": null,
+    "healthCheck": null,
+    "essential": true,
+    "links": [],
+    "hostname": null,
+    "extraHosts": null,
+    "user": null,
+    "readonlyRootFilesystem": null,
+    "dockerLabels": null,
+    "privileged": null,
+    "name": "ecs-ec2-sample-app"
+  }
+]
