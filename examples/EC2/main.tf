@@ -32,7 +32,7 @@ resource "aws_security_group" "allow_web" {
 }
 
 module "ecs_cluster" {
-  source           = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs/modules/cluster//?ref=v0.0.2"
+  source           = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.0.2"
   ecs_cluster_name = "${var.ecs_cluster_name}"
 }
 
@@ -213,4 +213,82 @@ resource "aws_ecs_service" "ecs_service_def" {
   cluster         = "${module.ecs_cluster.cluster_id}"
   task_definition = "${aws_ecs_task_definition.ecs_task_def.arn}"
   desired_count   = "${var.ecs_service_desired_count}"
+}
+
+## ECR Provisioning
+
+resource "random_string" "ecr_rstring" {
+  length  = 18
+  upper   = false
+  special = false
+}
+
+module "ecr_repo" {
+  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.0.3"
+  provision_ecr       = true
+  ecr_repository_name = "myrepo-${random_string.ecr_rstring.result}"
+
+  ecr_lifecycle_policy_text = <<EOF
+{
+    "rules": [
+        {
+            "rulePriority": 1,
+            "description": "Expire images older than 14 days",
+            "selection": {
+                "tagStatus": "untagged",
+                "countType": "sinceImagePushed",
+                "countUnit": "days",
+                "countNumber": 14
+            },
+            "action": {
+                "type": "expire"
+            }
+        }
+    ]
+}
+EOF
+
+  ecr_repository_policy_text = <<EOF
+{
+    "Version": "2008-10-17",
+    "Statement": [
+        {
+            "Sid": "new policy",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:PutImage",
+                "ecr:InitiateLayerUpload",
+                "ecr:UploadLayerPart",
+                "ecr:CompleteLayerUpload",
+                "ecr:DescribeRepositories",
+                "ecr:GetRepositoryPolicy",
+                "ecr:ListImages",
+                "ecr:DeleteRepository",
+                "ecr:BatchDeleteImage",
+                "ecr:SetRepositoryPolicy",
+                "ecr:DeleteRepositoryPolicy"
+            ]
+        }
+    ]
+}
+EOF
+}
+
+output "ecr_repository_name" {
+  value       = "${module.ecr_repo.ecr_repository_name}"
+  description = "Name of the ECR repository"
+}
+
+output "ecr_repository_registry_id" {
+  value       = "${module.ecr_repo.ecr_repository_registry_id}"
+  description = "Name of the ECR repository"
+}
+
+output "ecr_repository_registry_url" {
+  value       = "${module.ecr_repo.ecr_repository_registry_url}"
+  description = "URL of the ECR repository"
 }
