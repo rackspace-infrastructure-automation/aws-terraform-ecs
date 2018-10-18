@@ -72,5 +72,6 @@ EOF
 |------|-------------|
 | ecr_repository_name | Name of the ECR repository |
 | ecr_repository_registry_id | Name of the ECR repository |
+| ecr_repository_registry_url | URL of the ECR repository |
 
 
