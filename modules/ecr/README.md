@@ -1,7 +1,7 @@
 ## Basic Usage
 ```
 module "ecr_repo" {
-  source              = "github.com/rackspace-infrastructure-automation/aws-terraform-ecs/modules/ecr?ref=v0.0.1"
+  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs/modules/ecr?ref=v0.0.1"
   provision_ecr       = true
   ecr_repository_name = "myrepo-${random_string.ecs_rstring.result}"
 
@@ -73,5 +73,3 @@ EOF
 | ecr_repository_name | Name of the ECR repository |
 | ecr_repository_registry_id | Name of the ECR repository |
 | ecr_repository_registry_url | URL of the ECR repository |
-
-
