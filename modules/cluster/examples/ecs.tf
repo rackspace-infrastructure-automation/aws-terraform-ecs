@@ -10,7 +10,7 @@ resource "random_string" "ecs_rstring" {
 }
 
 module "ecs" {
-  source = "github.com/rackspace-infrastructure-automation/aws-terraform-ecs//?ref=v0.0.1"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//?ref=v0.0.1"
 
   cluster_name = "MyCluster"
 }
