@@ -140,7 +140,7 @@ data "aws_ami" "amazon_ecs" {
 }
 
 module "ec2_asg" {
-  source    = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.0.5"
+  source    = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.0.6"
   ec2_os    = "amazon"
   asg_count = "1"
 
@@ -224,7 +224,7 @@ resource "random_string" "ecr_rstring" {
 }
 
 module "ecr_repo" {
-  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.0.3"
+  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.0.2"
   provision_ecr       = true
   ecr_repository_name = "myrepo-${random_string.ecr_rstring.result}"
 

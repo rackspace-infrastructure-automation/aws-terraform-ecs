@@ -10,7 +10,7 @@ resource "random_string" "ecs_rstring" {
 }
 
 module "ecr_repo" {
-  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs/modules/ecr?ref=v0.0.1"
+  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs/modules/ecr?ref=v0.0.2"
   provision_ecr       = true
   ecr_repository_name = "myrepo-${random_string.ecs_rstring.result}"
 
