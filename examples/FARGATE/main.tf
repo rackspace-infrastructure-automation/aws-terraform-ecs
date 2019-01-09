@@ -39,7 +39,7 @@ resource "aws_security_group" "allow_web" {
 }
 
 module "ecs_cluster" {
-  source           = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs/modules/cluster//?ref=v0.0.2"
+  source           = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.0.2"
   ecs_cluster_name = "${var.ecs_cluster_name}"
 }
 
