@@ -3,14 +3,12 @@ provider "aws" {
   region  = "us-west-2"
 }
 
-resource "random_string" "ecs_rstring" {
-  length  = 18
-  upper   = false
-  special = false
-}
-
 module "ecs" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//?ref=v0.0.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.0.3"
 
   cluster_name = "MyCluster"
+
+  tags = {
+    Terraform = "true"
+  }
 }

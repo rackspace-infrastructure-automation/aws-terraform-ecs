@@ -1,4 +1,4 @@
-# aws-terraform-ecr
+# aws-terraform-ecs
 
 This repository contains terraform modules that can be used to Elastic Container Service cluster or Elastic Container Registry repo.
 
