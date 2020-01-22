@@ -1,5 +1,5 @@
 provider "aws" {
-  version = "~> 1.2"
+  version = ">= 2.1.0"
   region  = "us-west-2"
 }
 
@@ -10,7 +10,7 @@ resource "random_string" "ecs_rstring" {
 }
 
 module "ecr_repo" {
-  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs/modules/ecr?ref=v0.0.2"
+  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.0.3"
   provision_ecr       = true
   ecr_repository_name = "myrepo-${random_string.ecs_rstring.result}"
 
@@ -33,6 +33,7 @@ module "ecr_repo" {
     ]
 }
 EOF
+
 
   ecr_repository_policy_text = <<EOF
 {
@@ -62,4 +63,6 @@ EOF
     ]
 }
 EOF
+
 }
+

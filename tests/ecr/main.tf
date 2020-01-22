@@ -1,5 +1,5 @@
 provider "aws" {
-  version = "~> 1.2"
+  version = ">= 2.1.0"
   region  = "us-west-2"
 }
 
@@ -34,6 +34,7 @@ module "ecr_repo" {
 }
 EOF
 
+
   ecr_repository_policy_text = <<EOF
 {
     "Version": "2008-10-17",
@@ -62,4 +63,6 @@ EOF
     ]
 }
 EOF
+
 }
+

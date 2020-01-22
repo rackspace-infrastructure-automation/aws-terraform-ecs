@@ -1,11 +1,11 @@
 output "cluster_arn" {
   description = "The ARN of the cluster"
-  value       = "${aws_ecs_cluster.ecs-cluster.arn}"
+  value       = aws_ecs_cluster.ecs-cluster.arn
 }
 
 output "cluster_id" {
   description = "The ID of the cluster"
-  value       = "${aws_ecs_cluster.ecs-cluster.id}"
+  value       = aws_ecs_cluster.ecs-cluster.id
 }
 
 output "cluster_join_command_linux" {
@@ -20,6 +20,7 @@ echo ECS_LOGFILE=/log/ecs-agent.log >> /etc/ecs/ecs.config
 echo ECS_AVAILABLE_LOGGING_DRIVERS='["json-file","awslogs"]' >> /etc/ecs/ecs.config
 echo ECS_LOGLEVEL=info >> /etc/ecs/ecs.config
 EOF
+
 }
 
 output "cluster_join_command_windows" {
@@ -29,4 +30,6 @@ output "cluster_join_command_windows" {
 Import-Module ECSTools
 Initialize-ECSAgent -Cluster '${var.cluster_name}' -EnableTaskIAMRole
 EOF
+
 }
+

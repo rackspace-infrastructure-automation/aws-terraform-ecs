@@ -20,18 +20,20 @@
 * Full working references are available at [examples](examples)
 */
 
+terraform {
+  required_version = ">= 0.12"
+}
+
 locals {
   tags = {
-    Environment     = "${var.environment}"
+    Environment     = var.environment
     ServiceProvider = "Rackspace"
   }
 }
 
 resource "aws_ecs_cluster" "ecs-cluster" {
-  name = "${var.cluster_name}"
+  name = var.cluster_name
 
-  tags = "${merge(
-    local.tags,
-    var.tags
-  )}"
+  tags = merge(local.tags, var.tags)
 }
+
