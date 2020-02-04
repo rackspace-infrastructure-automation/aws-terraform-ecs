@@ -1,12 +1,16 @@
+terraform {
+  required_version = ">= 0.12"
+}
+
 provider "aws" {
-  version    = "~> 1.2"
-  access_key = "${var.aws_access_key}"
-  secret_key = "${var.aws_secret_key}"
-  region     = "${var.aws_region}"
+  version    = "~> 2.1"
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+  region     = var.aws_region
 }
 
 module "vpc" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=v0.0.2"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=v0.12.0"
 
   vpc_name = "ECS-EC2-Example-VPC"
 }
@@ -14,7 +18,7 @@ module "vpc" {
 resource "aws_security_group" "allow_web" {
   name        = "allow_web"
   description = "Allow inbound web traffic"
-  vpc_id      = "${module.vpc.vpc_id}"
+  vpc_id      = module.vpc.vpc_id
 
   ingress {
     from_port   = 80
@@ -32,19 +36,22 @@ resource "aws_security_group" "allow_web" {
 }
 
 module "ecs_cluster" {
-  source           = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.0.2"
-  ecs_cluster_name = "${var.ecs_cluster_name}"
+  source           = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
+  ecs_cluster_name = var.ecs_cluster_name
 }
 
-data "aws_region" "current_region" {}
-data "aws_caller_identity" "current" {}
+data "aws_region" "current_region" {
+}
+
+data "aws_caller_identity" "current" {
+}
 
 data "template_file" "ec2ecs-sample-app" {
-  template = "${file("ec2ecs-sample-app.json")}"
+  template = file("ec2ecs-sample-app.json")
 
-  vars {
-    AWS_REGION = "${var.aws_region}"
-    LOGS_GROUP = "${aws_cloudwatch_log_group.ec2ecs-sample-app.name}"
+  vars = {
+    AWS_REGION = var.aws_region
+    LOGS_GROUP = aws_cloudwatch_log_group.ec2ecs-sample-app.name
   }
 }
 
@@ -66,11 +73,12 @@ resource "aws_iam_role" "ecs_role_task_assume" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_role_policy" "ecs_task_assume_policy" {
   name = "ecsec2_task_assume_policy"
-  role = "${aws_iam_role.ecs_role_task_assume.id}"
+  role = aws_iam_role.ecs_role_task_assume.id
 
   policy = <<EOF
 {
@@ -91,13 +99,14 @@ resource "aws_iam_role_policy" "ecs_task_assume_policy" {
     ]
 }
 EOF
+
 }
 
 resource "aws_cloudwatch_log_group" "ec2ecs-sample-app" {
   name              = "/ecs/ec2ecs-sample-app"
   retention_in_days = 30
 
-  tags {
+  tags = {
     Name = "ec2ecs-sample-app"
   }
 }
@@ -121,12 +130,12 @@ resource "aws_sqs_queue" "ec2-asg-test_sqs" {
 }
 
 module "sns_sqs" {
-  source     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-sns?ref=v0.0.2"
+  source     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-sns?ref=v0.12.0"
   topic_name = "${random_string.sqs_rstring.result}-ec2-asg-test-topic"
 
   create_subscription_1 = true
   protocol_1            = "sqs"
-  endpoint_1            = "${aws_sqs_queue.ec2-asg-test_sqs.arn}"
+  endpoint_1            = aws_sqs_queue.ec2-asg-test_sqs.arn
 }
 
 data "aws_ami" "amazon_ecs" {
@@ -140,7 +149,7 @@ data "aws_ami" "amazon_ecs" {
 }
 
 module "ec2_asg" {
-  source    = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.0.6"
+  source    = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.0"
   ec2_os    = "amazon"
   asg_count = "1"
 
@@ -154,7 +163,7 @@ module "ec2_asg" {
   ]
 
   instance_role_managed_policy_arn_count = "3"
-  environment                            = "${var.environment}"
+  environment                            = var.environment
   ssm_association_refresh_rate           = "rate(1 day)"
   cw_scaling_metric                      = "CPUUtilization"
   enable_ebs_optimization                = "False"
@@ -162,11 +171,11 @@ module "ec2_asg" {
   cloudwatch_log_retention               = "30"
   cw_high_period                         = "60"
   enable_scaling_notification            = true
-  subnets                                = ["${element(module.vpc.public_subnets, 0)}", "${element(module.vpc.public_subnets, 1)}"]
+  subnets                                = [element(module.vpc.public_subnets, 0), element(module.vpc.public_subnets, 1)]
   ec2_scale_down_adjustment              = "1"
-  image_id                               = "${data.aws_ami.amazon_ecs.image_id}"
+  image_id                               = data.aws_ami.amazon_ecs.image_id
   cw_low_period                          = "300"
-  key_pair                               = "${var.ec2_keypair}"
+  key_pair                               = var.ec2_keypair
   tenancy                                = "default"
   backup_tag_value                       = "False"
   ec2_scale_down_cool_down               = "60"
@@ -177,13 +186,13 @@ module "ec2_asg" {
 
   ec2_scale_up_adjustment       = "1"
   cw_high_threshold             = "60"
-  scaling_notification_topic    = "${module.sns_sqs.topic_arn}"
+  scaling_notification_topic    = module.sns_sqs.topic_arn
   cw_low_threshold              = "30"
   resource_name                 = "ECS-Cluster-ASG"
   ec2_scale_up_cool_down        = "60"
   ssm_patching_group            = "MyPatchGroup1"
   health_check_grace_period     = "300"
-  security_group_list           = ["${module.vpc.default_sg}", "${aws_security_group.allow_web.id}"]
+  security_group_list           = [module.vpc.default_sg, aws_security_group.allow_web.id]
   perform_ssm_inventory_tag     = "True"
   terminated_instances          = "30"
   health_check_type             = "EC2"
@@ -197,22 +206,22 @@ module "ec2_asg" {
   cw_high_operator              = "GreaterThanThreshold"
   install_codedeploy_agent      = "False"
   asg_wait_for_capacity_timeout = "10m"
-  initial_userdata_commands     = "${module.ecs_cluster.cluster_join_command}"
+  initial_userdata_commands     = module.ecs_cluster.cluster_join_command
 }
 
 resource "aws_ecs_task_definition" "ecs_task_def" {
-  family                   = "${lower(var.task_name)}"
-  container_definitions    = "${data.template_file.ec2ecs-sample-app.rendered}"
-  network_mode             = "${var.network_mode}"
-  execution_role_arn       = "${aws_iam_role.ecs_role_task_assume.arn}"
+  family                   = lower(var.task_name)
+  container_definitions    = data.template_file.ec2ecs-sample-app.rendered
+  network_mode             = var.network_mode
+  execution_role_arn       = aws_iam_role.ecs_role_task_assume.arn
   requires_compatibilities = ["EC2"]
 }
 
 resource "aws_ecs_service" "ecs_service_def" {
-  name            = "${lower(var.service_name)}"
-  cluster         = "${module.ecs_cluster.cluster_id}"
-  task_definition = "${aws_ecs_task_definition.ecs_task_def.arn}"
-  desired_count   = "${var.ecs_service_desired_count}"
+  name            = lower(var.service_name)
+  cluster         = module.ecs_cluster.cluster_id
+  task_definition = aws_ecs_task_definition.ecs_task_def.arn
+  desired_count   = var.ecs_service_desired_count
 }
 
 ## ECR Provisioning
@@ -224,7 +233,7 @@ resource "random_string" "ecr_rstring" {
 }
 
 module "ecr_repo" {
-  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.0.2"
+  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.0"
   provision_ecr       = true
   ecr_repository_name = "myrepo-${random_string.ecr_rstring.result}"
 
@@ -247,6 +256,7 @@ module "ecr_repo" {
     ]
 }
 EOF
+
 
   ecr_repository_policy_text = <<EOF
 {
@@ -276,4 +286,6 @@ EOF
     ]
 }
 EOF
+
 }
+
