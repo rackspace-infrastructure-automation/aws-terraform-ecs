@@ -22,7 +22,15 @@
 * Full working references are available at [examples](examples)
 */
 
+terraform {
+  required_version = ">= 0.12"
+
+  required_providers {
+    aws = ">= 2.1.0"
+  }
+}
+
 # Specify the provider and access details
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
 }
