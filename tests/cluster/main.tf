@@ -1,12 +1,12 @@
 provider "aws" {
-  version = "~> 1.2"
   region  = "us-west-2"
+  version = "~> 2.1"
 }
 
 module "ecs" {
   source = "../../module/modules/cluster"
 
-  cluster_name = "MyCluster"
+  name = "MyCluster"
 
   tags = {
     Environment = "Test"

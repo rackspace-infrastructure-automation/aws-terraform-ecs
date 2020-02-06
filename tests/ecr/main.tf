@@ -1,18 +1,19 @@
 provider "aws" {
-  version = "~> 1.2"
   region  = "us-west-2"
+  version = "~> 2.1"
 }
 
 resource "random_string" "ecs_rstring" {
   length  = 18
-  upper   = false
   special = false
+  upper   = false
 }
 
 module "ecr_repo" {
-  source              = "../../module/modules/ecr"
-  provision_ecr       = true
-  ecr_repository_name = "myrepo-${random_string.ecs_rstring.result}"
+  source = "../../module/modules/ecr"
+
+  name          = "myrepo-${random_string.ecs_rstring.result}"
+  provision_ecr = true
 
   ecr_lifecycle_policy_text = <<EOF
 {
@@ -33,6 +34,7 @@ module "ecr_repo" {
     ]
 }
 EOF
+
 
   ecr_repository_policy_text = <<EOF
 {
@@ -62,4 +64,6 @@ EOF
     ]
 }
 EOF
+
 }
+
