@@ -4,11 +4,11 @@ terraform {
 }
 
 provider "aws" {
+  region = var.aws_region
   version = "~> 2.1"
 
   #access_key = "${var.aws_access_key}"
   #secret_key = "${var.aws_secret_key}"
-  region = var.aws_region
 }
 
 # locals
@@ -135,36 +135,38 @@ resource "aws_iam_role_policy" "ecs_task" {
 }
 
 resource "aws_ecs_service" "ecs_service_def" {
-  name            = lower(var.service_name)
   cluster         = module.ecs_cluster.cluster_id
-  task_definition = aws_ecs_task_definition.ecs_task_def.arn
   desired_count   = var.ecs_service_desired_count
+  name            = lower(var.service_name)
+  task_definition = aws_ecs_task_definition.ecs_task_def.arn
 }
 
 resource "aws_ecs_task_definition" "ecs_task_def" {
-  family                   = lower(var.task_name)
   container_definitions    = data.template_file.ecs_ec2_sample_app.rendered
   execution_role_arn       = aws_iam_role.ecs_task.arn
+  family                   = lower(var.task_name)
   requires_compatibilities = ["EC2"]
 }
 
 resource "aws_security_group" "allow_web" {
-  name        = "allow_web"
   description = "Allow inbound web traffic"
+  name        = "allow_web"
   vpc_id      = module.vpc.vpc_id
 
   ingress {
     from_port   = 8080
     to_port     = 8080
-    protocol    = "tcp"
+
     cidr_blocks = ["0.0.0.0/0"]
+    protocol    = "tcp"
   }
 
   egress {
     from_port   = 0
     to_port     = 0
-    protocol    = "-1"
+
     cidr_blocks = ["0.0.0.0/0"]
+    protocol    = "-1"
   }
 
   tags = local.tags
@@ -176,22 +178,22 @@ resource "aws_sqs_queue" "ec2_asg_test" {
 
 resource "random_string" "ecr" {
   length  = 18
-  upper   = false
   special = false
+  upper   = false
 }
 
 resource "random_string" "password" {
   length      = 16
-  special     = false
-  min_upper   = 1
   min_lower   = 1
   min_numeric = 1
+  min_upper   = 1
+  special     = false
 }
 
 resource "random_string" "sqs" {
   length  = 18
-  upper   = false
   special = false
+  upper   = false
 }
 
 # modules
@@ -200,13 +202,14 @@ module "vpc" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=v0.12.0"
 
   custom_tags = local.tags
-  vpc_name    = "ECS-EC2-Example-VPC"
+  name    = "ECS-EC2-Example-VPC"
 }
 
 module "ecr_repo" {
   source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.0"
+
+  name                = "myrepo-${random_string.ecr.result}"
   provision_ecr       = true
-  ecr_repository_name = "myrepo-${random_string.ecr.result}"
 
   ecr_lifecycle_policy_text = data.template_file.ecr_lifecycle_policy_text.rendered
 
@@ -218,7 +221,7 @@ module "ecs_cluster" {
 
   source = "../../modules/cluster"
 
-  cluster_name = var.ecs_cluster_name
+  ame          = var.ecs_cluster_name
   tags         = local.tags
 }
 
@@ -255,15 +258,15 @@ EOF
   instance_role_managed_policy_arn_count = "3"
   instance_type                          = "t2.xlarge"
   key_pair                               = var.ec2_keypair
-  primary_ebs_volume_size                = "50"
   resource_name                          = "ECS-Cluster-ASG"
+  primary_ebs_volume_size                = "50"
   scaling_max                            = "2"
   scaling_min                            = "1"
   scaling_notification_topic             = module.sns_sqs.topic_arn
 
   security_group_list = [
-    module.vpc.default_sg,
     aws_security_group.allow_web.id,
+    module.vpc.default_sg,
   ]
 
   ssm_patching_group = "MyPatchGroup1"

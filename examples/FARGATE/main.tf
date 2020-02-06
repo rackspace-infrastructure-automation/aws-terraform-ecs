@@ -3,16 +3,17 @@ terraform {
 }
 
 provider "aws" {
+  region     = var.aws_region
   version    = "~> 2.1"
+
   access_key = var.aws_access_key
   secret_key = var.aws_secret_key
-  region     = var.aws_region
 }
 
 module "vpc" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=v0.12.0"
 
-  vpc_name = "ECS-FARGATE-Example-VPC"
+  name = "ECS-FARGATE-Example-VPC"
 }
 
 resource "aws_security_group" "allow_web" {
@@ -44,7 +45,8 @@ resource "aws_security_group" "allow_web" {
 
 module "ecs_cluster" {
   source           = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
-  ecs_cluster_name = var.ecs_cluster_name
+
+  name = var.ecs_cluster_name
 }
 
 resource "aws_iam_role" "ecs_role_task_assume" {
@@ -119,26 +121,26 @@ resource "aws_cloudwatch_log_group" "fargate-sample-app" {
 }
 
 resource "aws_ecs_task_definition" "ecs_task_def" {
-  family                   = lower(var.task_name)
   container_definitions    = data.template_file.fargate-sample-app.rendered
+  cpu                      = var.task_cpu
   execution_role_arn       = aws_iam_role.ecs_role_task_assume.arn
+  family                   = lower(var.task_name)
+  memory                   = var.task_memory
   network_mode             = var.network_mode
   requires_compatibilities = ["FARGATE"]
-  cpu                      = var.task_cpu
-  memory                   = var.task_memory
 }
 
 resource "aws_ecs_service" "ecs_service_def" {
-  name            = lower(var.service_name)
   cluster         = module.ecs_cluster.cluster_id
-  task_definition = aws_ecs_task_definition.ecs_task_def.arn
   desired_count   = var.ecs_service_desired_count
   launch_type     = "FARGATE"
+  name            = lower(var.service_name)
+  task_definition = aws_ecs_task_definition.ecs_task_def.arn
 
   network_configuration {
-    subnets          = [element(module.vpc.public_subnets, 0), element(module.vpc.public_subnets, 1)]
-    security_groups  = [aws_security_group.allow_web.id]
     assign_public_ip = "true"
+    security_groups  = [aws_security_group.allow_web.id]
+    subnets          = [element(module.vpc.public_subnets, 0), element(module.vpc.public_subnets, 1)]
   }
 }
 
