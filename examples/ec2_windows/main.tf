@@ -4,7 +4,7 @@ terraform {
 }
 
 provider "aws" {
-  region = var.aws_region
+  region  = var.aws_region
   version = "~> 2.1"
 
   #access_key = "${var.aws_access_key}"
@@ -154,16 +154,16 @@ resource "aws_security_group" "allow_web" {
   vpc_id      = module.vpc.vpc_id
 
   ingress {
-    from_port   = 8080
-    to_port     = 8080
+    from_port = 8080
+    to_port   = 8080
 
     cidr_blocks = ["0.0.0.0/0"]
     protocol    = "tcp"
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
+    from_port = 0
+    to_port   = 0
 
     cidr_blocks = ["0.0.0.0/0"]
     protocol    = "-1"
@@ -202,14 +202,14 @@ module "vpc" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=v0.12.0"
 
   custom_tags = local.tags
-  name    = "ECS-EC2-Example-VPC"
+  name        = "ECS-EC2-Example-VPC"
 }
 
 module "ecr_repo" {
-  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.0"
 
-  name                = "myrepo-${random_string.ecr.result}"
-  provision_ecr       = true
+  name          = "myrepo-${random_string.ecr.result}"
+  provision_ecr = true
 
   ecr_lifecycle_policy_text = data.template_file.ecr_lifecycle_policy_text.rendered
 
@@ -221,8 +221,8 @@ module "ecs_cluster" {
 
   source = "../../modules/cluster"
 
-  ame          = var.ecs_cluster_name
-  tags         = local.tags
+  ame  = var.ecs_cluster_name
+  tags = local.tags
 }
 
 module "ec2_asg" {

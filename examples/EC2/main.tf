@@ -3,8 +3,8 @@ terraform {
 }
 
 provider "aws" {
-  region     = var.aws_region
-  version    = "~> 2.1"
+  region  = var.aws_region
+  version = "~> 2.1"
 
   access_key = var.aws_access_key
   secret_key = var.aws_secret_key
@@ -22,16 +22,16 @@ resource "aws_security_group" "allow_web" {
   vpc_id      = module.vpc.vpc_id
 
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port = 80
+    to_port   = 80
 
     cidr_blocks = ["0.0.0.0/0"]
     protocol    = "tcp"
   }
 
   ingress {
-    from_port   = 22
-    to_port     = 22
+    from_port = 22
+    to_port   = 22
 
     cidr_blocks = ["0.0.0.0/0"]
     protocol    = "tcp"
@@ -39,7 +39,7 @@ resource "aws_security_group" "allow_web" {
 }
 
 module "ecs_cluster" {
-  source           = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
 
   ecs_cluster_name = var.ecs_cluster_name
 }
@@ -134,7 +134,7 @@ resource "aws_sqs_queue" "ec2-asg-test_sqs" {
 }
 
 module "sns_sqs" {
-  source     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-sns?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-sns?ref=v0.12.0"
 
   topic_name = "${random_string.sqs_rstring.result}-ec2-asg-test-topic"
 
@@ -154,7 +154,7 @@ data "aws_ami" "amazon_ecs" {
 }
 
 module "ec2_asg" {
-  source    = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.0"
 
   asg_count = "1"
   ec2_os    = "amazon"
@@ -239,7 +239,7 @@ resource "random_string" "ecr_rstring" {
 }
 
 module "ecr_repo" {
-  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.0"
 
   ecr_repository_name = "myrepo-${random_string.ecr_rstring.result}"
   provision_ecr       = true

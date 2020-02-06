@@ -14,10 +14,10 @@ resource "random_string" "ecs_rstring" {
 }
 
 module "ecr_repo" {
-  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.0.3"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.0.3"
 
-  name                = "myrepo-${random_string.ecs_rstring.result}"
-  provision_ecr       = true
+  name          = "myrepo-${random_string.ecs_rstring.result}"
+  provision_ecr = true
 
   ecr_lifecycle_policy_text = <<EOF
 {

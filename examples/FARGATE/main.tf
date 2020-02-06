@@ -3,8 +3,8 @@ terraform {
 }
 
 provider "aws" {
-  region     = var.aws_region
-  version    = "~> 2.1"
+  region  = var.aws_region
+  version = "~> 2.1"
 
   access_key = var.aws_access_key
   secret_key = var.aws_secret_key
@@ -44,7 +44,7 @@ resource "aws_security_group" "allow_web" {
 }
 
 module "ecs_cluster" {
-  source           = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
 
   name = var.ecs_cluster_name
 }

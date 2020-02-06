@@ -10,10 +10,10 @@ resource "random_string" "ecs_rstring" {
 }
 
 module "ecr_repo" {
-  source              = "../../module/modules/ecr"
+  source = "../../module/modules/ecr"
 
-  name                = "myrepo-${random_string.ecs_rstring.result}"
-  provision_ecr       = true
+  name          = "myrepo-${random_string.ecs_rstring.result}"
+  provision_ecr = true
 
   ecr_lifecycle_policy_text = <<EOF
 {

@@ -13,7 +13,7 @@ resource "aws_ecs_task_definition" "ecs_task_def" {
     "arn:aws:iam::%s:role/ecsTaskExecutionRole",
     data.aws_caller_identity.current.account_id,
   )
-  family                = lower(var.task_name)
+  family       = lower(var.task_name)
   network_mode = var.network_mode
 }
 
