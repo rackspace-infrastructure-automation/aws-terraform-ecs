@@ -3,20 +3,21 @@ terraform {
 }
 
 provider "aws" {
-  version = "~> 2.1"
   region  = "us-west-2"
+  version = "~> 2.1"
 }
 
 resource "random_string" "ecs_rstring" {
   length  = 18
-  upper   = false
   special = false
+  upper   = false
 }
 
 module "ecr_repo" {
   source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.0.3"
+
+  name                = "myrepo-${random_string.ecs_rstring.result}"
   provision_ecr       = true
-  ecr_repository_name = "myrepo-${random_string.ecs_rstring.result}"
 
   ecr_lifecycle_policy_text = <<EOF
 {

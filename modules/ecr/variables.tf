@@ -1,17 +1,5 @@
 ## ECR related variables
 
-variable "provision_ecr" {
-  description = "Provision ECR resource? true or false"
-  type        = string
-  default     = false
-}
-
-variable "ecr_repository_name" {
-  description = "A name for the image repository"
-  type        = string
-  default     = ""
-}
-
 variable "ecr_lifecycle_policy_text" {
   description = "The JSON repository policy text to apply to the repository. The length must be between 100 and 10,240 characters."
   type        = string
@@ -24,3 +12,14 @@ variable "ecr_repository_policy_text" {
   default     = ""
 }
 
+variable "name" {
+  description = "A name for the image repository"
+  type        = string
+  default     = ""
+}
+
+variable "provision_ecr" {
+  description = "Provision ECR resource? true or false"
+  type        = bool
+  default     = false
+}

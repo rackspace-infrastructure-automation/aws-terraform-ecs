@@ -6,7 +6,7 @@ provider "aws" {
 module "ecs" {
   source = "../../module/modules/cluster"
 
-  cluster_name = "MyCluster"
+  name = "MyCluster"
 
   tags = {
     Environment = "Test"
