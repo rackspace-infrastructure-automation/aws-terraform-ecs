@@ -1,6 +1,6 @@
 provider "aws" {
-  version = ">= 2.1.0"
   region  = "us-west-2"
+  version = "~> 2.1"
 }
 
 module "ecs" {

@@ -1,15 +1,15 @@
-\*# aws-terraform-ecs/modules/ecr
+# aws-terraform-ecs/modules/ecr
 
-\*This submodule creates an ecr repo.
+This submodule creates an ecr repo.
 
-\*## Basic Usage
+## Basic Usage
 
-\*```
-*module "ecr_repo" {
- source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs/modules/ecr?ref=v0.0.2"
- provision_ecr       = true
- ecr_repository_name = "myrepo-${random_string.ecs_rstring.result}"
-*}
+```
+module "ecr_repo" {
+  source              = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs/modules/ecr?ref=v0.12.0"
+  provision_ecr       = true
+  name                = "myrepo-${random_string.ecs_rstring.result}"
+}
 *
 ```
 

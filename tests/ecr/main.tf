@@ -1,6 +1,6 @@
 provider "aws" {
   region  = "us-west-2"
-  version = ">= 2.1.0"
+  version = "~> 2.1"
 }
 
 resource "random_string" "ecs_rstring" {

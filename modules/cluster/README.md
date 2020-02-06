@@ -1,20 +1,19 @@
-\*# aws-terraform-ecs/modules/cluster
+# aws-terraform-ecs/modules/cluster
 
-\*This submodule creates an ecs cluster
+This submodule creates an ecs cluster
 
-\*## Basic Usage
+## Basic Usage
 
-\*```
-*module "ecs" {
- source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.0.3"
+```
+module "ecs" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
 
- cluster_name = "MyCluster"
+  cluster_name = "MyCluster"
 
- tags = {
-   Terraform = "true"
- }
-*}
-*
+  tags = {
+    Terraform = "true"
+  }
+}
 ```
 
 Full working references are available at [examples](examples)
