@@ -9,6 +9,14 @@ resource "random_string" "ecs_rstring" {
   upper   = false
 }
 
+module "ecr_no_repo" {
+  source = "../../module/modules/ecr"
+
+  name          = "no_repo-${random_string.ecs_rstring.result}"
+  provision_ecr = false
+
+}
+
 module "ecr_repo" {
   source = "../../module/modules/ecr"
 
@@ -66,4 +74,3 @@ EOF
 EOF
 
 }
-
