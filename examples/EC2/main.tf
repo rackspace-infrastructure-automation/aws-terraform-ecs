@@ -13,7 +13,7 @@ provider "aws" {
 module "vpc" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=v0.12.0"
 
-  vpc_name = "ECS-EC2-Example-VPC"
+  name = "ECS-EC2-Example-VPC"
 }
 
 resource "aws_security_group" "allow_web" {
@@ -41,7 +41,7 @@ resource "aws_security_group" "allow_web" {
 module "ecs_cluster" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
 
-  ecs_cluster_name = var.ecs_cluster_name
+  name = var.ecs_cluster_name
 }
 
 data "aws_region" "current_region" {
@@ -241,8 +241,8 @@ resource "random_string" "ecr_rstring" {
 module "ecr_repo" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.0"
 
-  ecr_repository_name = "myrepo-${random_string.ecr_rstring.result}"
-  provision_ecr       = true
+  name          = "myrepo-${random_string.ecr_rstring.result}"
+  provision_ecr = true
 
   ecr_lifecycle_policy_text = <<EOF
 {
@@ -295,4 +295,3 @@ EOF
 EOF
 
 }
-

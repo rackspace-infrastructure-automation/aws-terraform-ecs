@@ -201,8 +201,8 @@ resource "random_string" "sqs" {
 module "vpc" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=v0.12.0"
 
-  custom_tags = local.tags
-  name        = "ECS-EC2-Example-VPC"
+  tags = local.tags
+  name = "ECS-EC2-Example-VPC"
 }
 
 module "ecr_repo" {
@@ -258,7 +258,7 @@ EOF
   instance_role_managed_policy_arn_count = "3"
   instance_type                          = "t2.xlarge"
   key_pair                               = var.ec2_keypair
-  resource_name                          = "ECS-Cluster-ASG"
+  name                                   = "ECS-Cluster-ASG"
   primary_ebs_volume_size                = "50"
   scaling_max                            = "2"
   scaling_min                            = "1"
@@ -283,4 +283,3 @@ module "sns_sqs" {
   protocol_1            = "sqs"
   topic_name            = "${random_string.sqs.result}-ec2-asg-test-topic"
 }
-

@@ -9,7 +9,7 @@
 * module "ecs" {
 *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
 *
-*   cluster_name = "MyCluster"
+*   name = "MyCluster"
 *
 *   tags = {
 *     Terraform = "true"
@@ -40,4 +40,3 @@ resource "aws_ecs_cluster" "ecs-cluster" {
 
   tags = merge(local.tags, var.tags)
 }
-
