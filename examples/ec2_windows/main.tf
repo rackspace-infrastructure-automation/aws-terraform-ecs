@@ -6,16 +6,14 @@ terraform {
 provider "aws" {
   region  = var.aws_region
   version = "~> 2.1"
-
-  #access_key = "${var.aws_access_key}"
-  #secret_key = "${var.aws_secret_key}"
 }
 
 # locals
 
 locals {
+  environment = "Test"
   tags = {
-    Environment = var.environment
+    Environment = local.environment
     Terraform   = "true"
   }
 }
@@ -136,7 +134,7 @@ resource "aws_iam_role_policy" "ecs_task" {
 
 resource "aws_ecs_service" "ecs_service_def" {
   cluster         = module.ecs_cluster.cluster_id
-  desired_count   = var.ecs_service_desired_count
+  desired_count   = 2
   name            = lower(var.service_name)
   task_definition = aws_ecs_task_definition.ecs_task_def.arn
 }
@@ -217,11 +215,9 @@ module "ecr_repo" {
 }
 
 module "ecs_cluster" {
-  #source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=ecs-windows"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
 
-  source = "../../modules/cluster"
-
-  ame  = var.ecs_cluster_name
+  name = "windows_ec2_ecs"
   tags = local.tags
 }
 
@@ -230,7 +226,7 @@ module "ec2_asg" {
 
   ec2_os                      = "windows2016"
   enable_scaling_notification = true
-  environment                 = var.environment
+  environment                 = local.environment
   image_id                    = data.aws_ami.windows_ecs.image_id
 
   # required for Windows AMIs pre 2018.11
@@ -255,16 +251,16 @@ EOF
     "arn:aws:iam::aws:policy/CloudWatchActionsEC2Access",
   ]
 
-  instance_role_managed_policy_arn_count = "3"
+  instance_role_managed_policy_arn_count = 3
   instance_type                          = "t2.xlarge"
   key_pair                               = var.ec2_keypair
   name                                   = "ECS-Cluster-ASG"
-  primary_ebs_volume_size                = "50"
-  scaling_max                            = "2"
-  scaling_min                            = "1"
+  primary_ebs_volume_size                = 50
+  scaling_max                            = 2
+  scaling_min                            = 1
   scaling_notification_topic             = module.sns_sqs.topic_arn
 
-  security_group_list = [
+  security_groups = [
     aws_security_group.allow_web.id,
     module.vpc.default_sg,
   ]
@@ -281,5 +277,5 @@ module "sns_sqs" {
   create_subscription_1 = true
   endpoint_1            = aws_sqs_queue.ec2_asg_test.arn
   protocol_1            = "sqs"
-  topic_name            = "${random_string.sqs.result}-ec2-asg-test-topic"
+  name                  = "${random_string.sqs.result}-ec2-asg-test-topic"
 }

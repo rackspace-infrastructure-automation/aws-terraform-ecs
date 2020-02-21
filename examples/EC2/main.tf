@@ -5,9 +5,6 @@ terraform {
 provider "aws" {
   region  = var.aws_region
   version = "~> 2.1"
-
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
 }
 
 module "vpc" {
@@ -59,51 +56,44 @@ data "template_file" "ec2ecs-sample-app" {
   }
 }
 
+data "aws_iam_policy_document" "ecs_role_task_assume" {
+  statement {
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "ecs_role_task_assume" {
   name = "ecsec2_task_assume"
 
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ecs-tasks.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
+  assume_role_policy = data.aws_iam_policy_document.ecs_role_task_assume.json
 }
-EOF
 
+data "aws_iam_policy_document" "ecs_task_assume_policy" {
+
+  statement {
+    actions = [
+      "ecr:GetAuthorizationToken",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role_policy" "ecs_task_assume_policy" {
   name = "ecsec2_task_assume_policy"
   role = aws_iam_role.ecs_role_task_assume.id
 
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ecr:GetAuthorizationToken",
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:BatchGetImage",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
-EOF
-
+  policy = data.aws_iam_policy_document.ecs_task_assume_policy.json
 }
 
 resource "aws_cloudwatch_log_group" "ec2ecs-sample-app" {
@@ -136,7 +126,7 @@ resource "aws_sqs_queue" "ec2-asg-test_sqs" {
 module "sns_sqs" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-sns?ref=v0.12.0"
 
-  topic_name = "${random_string.sqs_rstring.result}-ec2-asg-test-topic"
+  name = "${random_string.sqs_rstring.result}-ec2-asg-test-topic"
 
   create_subscription_1 = true
   endpoint_1            = aws_sqs_queue.ec2-asg-test_sqs.arn
@@ -156,7 +146,7 @@ data "aws_ami" "amazon_ecs" {
 module "ec2_asg" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.0"
 
-  asg_count = "1"
+  asg_count = 1
   ec2_os    = "amazon"
 
   cw_low_operator     = "LessThanThreshold"
@@ -169,20 +159,20 @@ module "ec2_asg" {
   ]
 
   backup_tag_value                       = "False"
-  cloudwatch_log_retention               = "30"
-  cw_high_period                         = "60"
-  cw_low_period                          = "300"
+  cloudwatch_log_retention               = 30
+  cw_high_period                         = 60
+  cw_low_period                          = 300
   cw_scaling_metric                      = "CPUUtilization"
-  ec2_scale_down_adjustment              = "1"
-  ec2_scale_down_cool_down               = "60"
-  enable_ebs_optimization                = "False"
+  ec2_scale_down_adjustment              = 1
+  ec2_scale_down_cool_down               = 60
+  enable_ebs_optimization                = false
   enable_scaling_notification            = true
   environment                            = var.environment
   image_id                               = data.aws_ami.amazon_ecs.image_id
   instance_type                          = "t2.small"
   key_pair                               = var.ec2_keypair
-  instance_role_managed_policy_arn_count = "3"
-  scaling_min                            = "1"
+  instance_role_managed_policy_arn_count = 3
+  scaling_min                            = 1
   ssm_association_refresh_rate           = "rate(1 day)"
   subnets                                = [element(module.vpc.public_subnets, 0), element(module.vpc.public_subnets, 1)]
   tenancy                                = "default"
@@ -190,28 +180,28 @@ module "ec2_asg" {
   # If ALB target groups are being used, one can specify ARNs like the commented line below.
   #target_group_arns                      = ["${aws_lb_target_group.my_tg.arn}"]
 
-  cw_high_evaluations           = "3"
+  cw_high_evaluations           = 3
   cw_high_operator              = "GreaterThanThreshold"
-  cw_high_threshold             = "60"
-  cw_low_evaluations            = "3"
-  cw_low_threshold              = "30"
-  detailed_monitoring           = "True"
-  ec2_scale_up_adjustment       = "1"
-  ec2_scale_up_cool_down        = "60"
-  health_check_grace_period     = "300"
+  cw_high_threshold             = 60
+  cw_low_evaluations            = 3
+  cw_low_threshold              = 30
+  detailed_monitoring           = true
+  ec2_scale_up_adjustment       = 1
+  ec2_scale_up_cool_down        = 60
+  health_check_grace_period     = 300
   health_check_type             = "EC2"
-  initial_userdata_commands     = module.ecs_cluster.cluster_join_command
-  install_codedeploy_agent      = "False"
+  initial_userdata_commands     = module.ecs_cluster.cluster_join_command_linux
+  install_codedeploy_agent      = false
   name                          = "ECS-Cluster-ASG"
   perform_ssm_inventory_tag     = "True"
-  primary_ebs_volume_iops       = "0"
-  primary_ebs_volume_size       = "20"
+  primary_ebs_volume_iops       = 0
+  primary_ebs_volume_size       = 20
   primary_ebs_volume_type       = "gp2"
-  scaling_max                   = "2"
+  scaling_max                   = 2
   scaling_notification_topic    = module.sns_sqs.topic_arn
-  security_group_list           = [module.vpc.default_sg, aws_security_group.allow_web.id]
+  security_groups               = [module.vpc.default_sg, aws_security_group.allow_web.id]
   ssm_patching_group            = "MyPatchGroup1"
-  terminated_instances          = "30"
+  terminated_instances          = 30
   asg_wait_for_capacity_timeout = "10m"
 }
 
@@ -238,60 +228,61 @@ resource "random_string" "ecr_rstring" {
   special = false
 }
 
+data "aws_iam_policy_document" "ecr_repo_policy" {
+  statement {
+    sid    = "new policy"
+    effect = "Allow"
+
+    actions = [
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:PutImage",
+      "ecr:InitiateLayerUpload",
+      "ecr:UploadLayerPart",
+      "ecr:CompleteLayerUpload",
+      "ecr:DescribeRepositories",
+      "ecr:GetRepositoryPolicy",
+      "ecr:ListImages",
+      "ecr:DeleteRepository",
+      "ecr:BatchDeleteImage",
+      "ecr:SetRepositoryPolicy",
+      "ecr:DeleteRepositoryPolicy"
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+  }
+}
+
+locals {
+  ecr_lifecycle_policy = {
+    rules = [
+      {
+        rulePriority = 1
+        description  = "Keep last 30 images"
+        selection = {
+          tagStatus     = "tagged"
+          tagPrefixList = ["v"]
+          countType     = "imageCountMoreThan"
+          countNumber   = 30
+        }
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  }
+}
+
 module "ecr_repo" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.0"
 
-  name          = "myrepo-${random_string.ecr_rstring.result}"
-  provision_ecr = true
-
-  ecr_lifecycle_policy_text = <<EOF
-{
-    "rules": [
-        {
-            "rulePriority": 1,
-            "description": "Expire images older than 14 days",
-            "selection": {
-                "tagStatus": "untagged",
-                "countType": "sinceImagePushed",
-                "countUnit": "days",
-                "countNumber": 14
-            },
-            "action": {
-                "type": "expire"
-            }
-        }
-    ]
-}
-EOF
-
-
-  ecr_repository_policy_text = <<EOF
-{
-    "Version": "2008-10-17",
-    "Statement": [
-        {
-            "Sid": "new policy",
-            "Effect": "Allow",
-            "Principal": "*",
-            "Action": [
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:BatchGetImage",
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:PutImage",
-                "ecr:InitiateLayerUpload",
-                "ecr:UploadLayerPart",
-                "ecr:CompleteLayerUpload",
-                "ecr:DescribeRepositories",
-                "ecr:GetRepositoryPolicy",
-                "ecr:ListImages",
-                "ecr:DeleteRepository",
-                "ecr:BatchDeleteImage",
-                "ecr:SetRepositoryPolicy",
-                "ecr:DeleteRepositoryPolicy"
-            ]
-        }
-    ]
-}
-EOF
+  name                       = "myrepo-${random_string.ecr_rstring.result}"
+  provision_ecr              = true
+  ecr_lifecycle_policy_text  = jsonencode(local.ecr_lifecycle_policy)
+  ecr_repository_policy_text = data.aws_iam_policy_document.ecr_repo_policy.json
 
 }

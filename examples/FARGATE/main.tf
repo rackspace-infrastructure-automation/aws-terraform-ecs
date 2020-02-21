@@ -5,9 +5,6 @@ terraform {
 provider "aws" {
   region  = var.aws_region
   version = "~> 2.1"
-
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
 }
 
 module "vpc" {
@@ -49,50 +46,43 @@ module "ecs_cluster" {
   name = var.ecs_cluster_name
 }
 
-resource "aws_iam_role" "ecs_role_task_assume" {
-  name = "ecsfargate_task_assume"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "ecs-tasks.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
+data "aws_iam_policy_document" "ecs_role_task_assume" {
+  statement {
+    actions = [
+      "sts:AssumeRole"
+    ]
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
     }
-  ]
+  }
 }
-EOF
 
+resource "aws_iam_role" "ecs_role_task_assume" {
+  name               = "ecsfargate_task_assume"
+  assume_role_policy = data.aws_iam_policy_document.ecs_role_task_assume.json
+}
+
+data "aws_iam_policy_document" "ecs_task_assume_policy" {
+
+  statement {
+    actions = [
+      "ecr:GetAuthorizationToken",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_role_policy" "ecs_task_assume_policy" {
   name = "ecsfargate_task_assume_policy"
   role = aws_iam_role.ecs_role_task_assume.id
 
-  policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ecr:GetAuthorizationToken",
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:BatchGetImage",
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
-EOF
+  policy = data.aws_iam_policy_document.ecs_task_assume_policy.json
 
 }
 
@@ -143,4 +133,3 @@ resource "aws_ecs_service" "ecs_service_def" {
     subnets          = [element(module.vpc.public_subnets, 0), element(module.vpc.public_subnets, 1)]
   }
 }
-
