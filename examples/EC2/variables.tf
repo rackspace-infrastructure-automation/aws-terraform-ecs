@@ -4,16 +4,6 @@ variable "aws_region" {
   type        = string
 }
 
-variable "aws_access_key" {
-  description = "AWS Access Key stored in secrets"
-  type        = string
-}
-
-variable "aws_secret_key" {
-  description = "AWS Secret Key stored in secrets"
-  type        = string
-}
-
 variable "environment" {
   description = "The environment we are building for"
   default     = "Test"
@@ -55,4 +45,3 @@ variable "ecs_service_desired_count" {
   default     = "1"
   type        = string
 }
-

@@ -10,10 +10,9 @@ provider "aws" {
 module "ecs" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
 
-  cluster_name = "MyCluster"
+  name = "MyCluster"
 
   tags = {
     Terraform = "true"
   }
 }
-

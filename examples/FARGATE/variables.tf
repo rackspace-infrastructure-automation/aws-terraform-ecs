@@ -4,16 +4,6 @@ variable "aws_region" {
   type        = string
 }
 
-variable "aws_access_key" {
-  description = "AWS Access Key stored in secrets"
-  type        = string
-}
-
-variable "aws_secret_key" {
-  description = "AWS Secret Key stored in secrets"
-  type        = string
-}
-
 variable "environment" {
   description = "The environment we are building for"
   default     = "Test"
@@ -46,19 +36,18 @@ variable "network_mode" {
 
 variable "ecs_service_desired_count" {
   description = "The desired count of the ECS service."
-  default     = "1"
-  type        = string
+  default     = 1
+  type        = number
 }
 
 variable "task_cpu" {
   description = "The tasks desired CPU."
-  default     = "256"
-  type        = string
+  default     = 256
+  type        = number
 }
 
 variable "task_memory" {
   description = "The tasks desired memory."
-  default     = "512"
-  type        = string
+  default     = 512
+  type        = number
 }
-
