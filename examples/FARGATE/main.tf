@@ -4,7 +4,7 @@ terraform {
 
 provider "aws" {
   region  = var.aws_region
-  version = "~> 2.1"
+  version = "~> 2.7"
 }
 
 module "vpc" {
@@ -92,16 +92,16 @@ data "aws_region" "current_region" {
 data "aws_caller_identity" "current" {
 }
 
-data "template_file" "fargate-sample-app" {
+data "template_file" "fargate_sample_app" {
   template = file("fargate-sample-app.json")
 
   vars = {
     AWS_REGION = var.aws_region
-    LOGS_GROUP = aws_cloudwatch_log_group.fargate-sample-app.name
+    LOGS_GROUP = aws_cloudwatch_log_group.fargate_sample_app.name
   }
 }
 
-resource "aws_cloudwatch_log_group" "fargate-sample-app" {
+resource "aws_cloudwatch_log_group" "fargate_sample_app" {
   name              = "/ecs/fargate-sample-app"
   retention_in_days = 30
 
@@ -111,7 +111,7 @@ resource "aws_cloudwatch_log_group" "fargate-sample-app" {
 }
 
 resource "aws_ecs_task_definition" "ecs_task_def" {
-  container_definitions    = data.template_file.fargate-sample-app.rendered
+  container_definitions    = data.template_file.fargate_sample_app.rendered
   cpu                      = var.task_cpu
   execution_role_arn       = aws_iam_role.ecs_role_task_assume.arn
   family                   = lower(var.task_name)
