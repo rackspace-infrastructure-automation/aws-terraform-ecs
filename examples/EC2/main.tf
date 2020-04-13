@@ -4,7 +4,7 @@ terraform {
 
 provider "aws" {
   region  = var.aws_region
-  version = "~> 2.1"
+  version = "~> 2.7"
 }
 
 module "vpc" {
@@ -47,12 +47,12 @@ data "aws_region" "current_region" {
 data "aws_caller_identity" "current" {
 }
 
-data "template_file" "ec2ecs-sample-app" {
+data "template_file" "ec2ecs_sample_app" {
   template = file("ec2ecs-sample-app.json")
 
   vars = {
     AWS_REGION = var.aws_region
-    LOGS_GROUP = aws_cloudwatch_log_group.ec2ecs-sample-app.name
+    LOGS_GROUP = aws_cloudwatch_log_group.ec2ecs_sample_app.name
   }
 }
 
@@ -96,7 +96,7 @@ resource "aws_iam_role_policy" "ecs_task_assume_policy" {
   policy = data.aws_iam_policy_document.ecs_task_assume_policy.json
 }
 
-resource "aws_cloudwatch_log_group" "ec2ecs-sample-app" {
+resource "aws_cloudwatch_log_group" "ec2ecs_sample_app" {
   name              = "/ecs/ec2ecs-sample-app"
   retention_in_days = 30
 
@@ -119,7 +119,7 @@ resource "random_string" "sqs_rstring" {
   special = false
 }
 
-resource "aws_sqs_queue" "ec2-asg-test_sqs" {
+resource "aws_sqs_queue" "ec2_asg_test_sqs" {
   name = "${random_string.sqs_rstring.result}-my-example-queue"
 }
 
@@ -129,7 +129,7 @@ module "sns_sqs" {
   name = "${random_string.sqs_rstring.result}-ec2-asg-test-topic"
 
   create_subscription_1 = true
-  endpoint_1            = aws_sqs_queue.ec2-asg-test_sqs.arn
+  endpoint_1            = aws_sqs_queue.ec2_asg_test_sqs.arn
   protocol_1            = "sqs"
 }
 
@@ -206,7 +206,7 @@ module "ec2_asg" {
 }
 
 resource "aws_ecs_task_definition" "ecs_task_def" {
-  container_definitions    = data.template_file.ec2ecs-sample-app.rendered
+  container_definitions    = data.template_file.ec2ecs_sample_app.rendered
   execution_role_arn       = aws_iam_role.ecs_role_task_assume.arn
   family                   = lower(var.task_name)
   network_mode             = var.network_mode

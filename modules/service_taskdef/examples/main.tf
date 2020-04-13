@@ -4,7 +4,7 @@ terraform {
 
 provider "aws" {
   region  = "us-west-2"
-  version = "~> 2.1"
+  version = "~> 2.7"
 }
 
 resource "aws_ecs_task_definition" "ecs_task_def" {
