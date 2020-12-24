@@ -4,11 +4,11 @@ terraform {
 
 provider "aws" {
   region  = "us-west-2"
-  version = "~> 2.7"
+  version = "~> 3.0"
 }
 
 module "ecs" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.2"
 
   name = "MyCluster"
 

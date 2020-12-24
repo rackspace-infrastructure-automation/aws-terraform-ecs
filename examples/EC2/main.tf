@@ -4,13 +4,13 @@ terraform {
 
 provider "aws" {
   region  = var.aws_region
-  version = "~> 2.7"
+  version = "~> 3.0"
 }
 
 module "vpc" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=v0.12.4"
 
-  name = "ECS-EC2-Example-VPC"
+  name = "${var.ecs_cluster_name}-VPC"
 }
 
 resource "aws_security_group" "allow_web" {
@@ -36,7 +36,7 @@ resource "aws_security_group" "allow_web" {
 }
 
 module "ecs_cluster" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.2"
 
   name = var.ecs_cluster_name
 }
@@ -69,7 +69,7 @@ data "aws_iam_policy_document" "ecs_role_task_assume" {
 }
 
 resource "aws_iam_role" "ecs_role_task_assume" {
-  name = "ecsec2_task_assume"
+  name = "${var.ecs_cluster_name}_task_assume"
 
   assume_role_policy = data.aws_iam_policy_document.ecs_role_task_assume.json
 }
@@ -97,7 +97,7 @@ resource "aws_iam_role_policy" "ecs_task_assume_policy" {
 }
 
 resource "aws_cloudwatch_log_group" "ec2ecs_sample_app" {
-  name              = "/ecs/ec2ecs-sample-app"
+  name              = "/ecs/${var.ecs_cluster_name}"
   retention_in_days = 30
 
   tags = {
@@ -124,7 +124,7 @@ resource "aws_sqs_queue" "ec2_asg_test_sqs" {
 }
 
 module "sns_sqs" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-sns?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-sns?ref=v0.12.2"
 
   name = "${random_string.sqs_rstring.result}-ec2-asg-test-topic"
 
@@ -144,7 +144,7 @@ data "aws_ami" "amazon_ecs" {
 }
 
 module "ec2_asg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.9"
 
   asg_count = 1
   ec2_os    = "amazon"
@@ -192,7 +192,7 @@ module "ec2_asg" {
   health_check_type             = "EC2"
   initial_userdata_commands     = module.ecs_cluster.cluster_join_command_linux
   install_codedeploy_agent      = false
-  name                          = "ECS-Cluster-ASG"
+  name                          = "${var.ecs_cluster_name}-ASG"
   perform_ssm_inventory_tag     = "True"
   primary_ebs_volume_iops       = 0
   primary_ebs_volume_size       = 20
@@ -278,7 +278,7 @@ locals {
 }
 
 module "ecr_repo" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.2"
 
   name                       = "myrepo-${random_string.ecr_rstring.result}"
   provision_ecr              = true

@@ -4,11 +4,11 @@ terraform {
 
 provider "aws" {
   region  = var.aws_region
-  version = "~> 2.7"
+  version = "~> 3.0"
 }
 
 module "vpc" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=v0.12.4"
 
   name = "ECS-FARGATE-Example-VPC"
 }
@@ -41,7 +41,7 @@ resource "aws_security_group" "allow_web" {
 }
 
 module "ecs_cluster" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.2"
 
   name = var.ecs_cluster_name
 }

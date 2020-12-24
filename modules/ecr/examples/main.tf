@@ -4,7 +4,7 @@ terraform {
 
 provider "aws" {
   region  = "us-west-2"
-  version = "~> 2.7"
+  version = "~> 3.0"
 }
 
 resource "random_string" "ecs_rstring" {
@@ -63,7 +63,7 @@ locals {
 }
 
 module "ecr_repo" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.2"
 
   ecr_lifecycle_policy_text  = jsonencode(local.ecr_lifecycle_policy)
   ecr_repository_policy_text = data.aws_iam_policy_document.ecr_repo_policy.json
