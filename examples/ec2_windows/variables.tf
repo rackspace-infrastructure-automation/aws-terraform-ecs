@@ -4,6 +4,12 @@ variable "aws_region" {
   default     = "us-east-2"
 }
 
+variable "ecs_cluster_name" {
+  description = "The environment we are building for"
+  default     = "ECS_Windows_Cluster_Example"
+  type        = string
+}
+
 variable "ec2_keypair" {
   description = "SSH keypair for the EC2 Instances available in the build region"
   default     = "my_ec2_keypair"

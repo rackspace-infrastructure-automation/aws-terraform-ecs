@@ -5,7 +5,7 @@ terraform {
 
 provider "aws" {
   region  = var.aws_region
-  version = "~> 2.7"
+  version = "~> 3.0"
 }
 
 # locals
@@ -197,14 +197,14 @@ resource "random_string" "sqs" {
 # modules
 
 module "vpc" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork//?ref=v0.12.4"
 
   tags = local.tags
-  name = "ECS-EC2-Example-VPC"
+  name = "${var.ecs_cluster_name}-VPC"
 }
 
 module "ecr_repo" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/ecr/?ref=v0.12.2"
 
   name          = "myrepo-${random_string.ecr.result}"
   provision_ecr = true
@@ -215,14 +215,14 @@ module "ecr_repo" {
 }
 
 module "ecs_cluster" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ecs//modules/cluster/?ref=v0.12.2"
 
-  name = "windows_ec2_ecs"
+  name = var.ecs_cluster_name
   tags = local.tags
 }
 
 module "ec2_asg" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-ec2_asg?ref=v0.12.9"
 
   ec2_os                      = "windows2016"
   enable_scaling_notification = true
@@ -254,7 +254,7 @@ EOF
   instance_role_managed_policy_arn_count = 3
   instance_type                          = "t2.xlarge"
   key_pair                               = var.ec2_keypair
-  name                                   = "ECS-Cluster-ASG"
+  name                                   = "${var.ecs_cluster_name}-ASG"
   primary_ebs_volume_size                = 50
   scaling_max                            = 2
   scaling_min                            = 1
@@ -272,7 +272,7 @@ EOF
 }
 
 module "sns_sqs" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-sns?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-sns?ref=v0.12.2"
 
   create_subscription_1 = true
   endpoint_1            = aws_sqs_queue.ec2_asg_test.arn

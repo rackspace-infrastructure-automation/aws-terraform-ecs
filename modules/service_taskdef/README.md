@@ -1,5 +1,5 @@
 # aws-terraform-ecs/modules/service\_taskdef  
-This submodule shows examples of service and task definitions
+This submodule provides documentation and examples of service and task definitions
 
 # Service and Task Defintions  
 Note: This is not a module and will not be being that service and task definitions are different for every application on ECS. This folder is however a guide on how to get started with ECS Service and Task Definitions.
@@ -17,7 +17,7 @@ Note that there is an odd behavior when a new task is created, the old version i
 - [Fargate Task Definitions](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html#fargate-task-defs)
 - [Fargate Tasks and Services](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html#fargate-tasks-services)
 
-Full working references are available at [examples](examples)
+Full working references are available at [examples](../../examples)
 
 ## Providers
 
