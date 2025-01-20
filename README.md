@@ -1,3 +1,6 @@
+> [!CAUTION]
+> This project is end of life. This repo will be deleted on June 2nd 2025.
+
 # aws-terraform-ecs
 
 This repository contains terraform modules that can be used to Elastic Container Service cluster or Elastic Container Registry repo.
